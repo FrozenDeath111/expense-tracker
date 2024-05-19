@@ -1,0 +1,92 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Budget;
+use App\Models\Expense;
+use Illuminate\Http\Request;
+
+class ExpenseController extends Controller
+{
+    public function getExpenseData()
+    {
+        $expenses = Expense::all();
+        $budgets = Budget::all();
+
+        return response()->json([
+            "expenses" => $expenses,
+            "budgets" => $budgets,
+        ]);
+    }
+    public function getCategory($month, $year)
+    {
+        try {
+            $budget = Budget::where("month", $month)->where("year", $year)->first();
+            return response()->json([
+                "status" => "success",
+                "message" => "Data fetch Successful",
+                "code" => 200,
+                "budget" => $budget,
+                "expenses" => $budget->expenses,
+            ]);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return response()->json([
+                "status" => "error",
+                "message" => $th->getMessage(),
+                "code" => 400,
+            ]);
+        }
+    }
+    public function setupBudget(Request $request)
+    {
+        $budget = new Budget();
+
+        $budget->month = $request->month;
+        $budget->year = $request->year;
+        $budget->amount = $request->amount;
+
+        try {
+            $budget->save();
+            foreach ($request->categories as $category) {
+                $expenses = new Expense();
+                $expenses->category = $category['category'];
+                $expenses->amount = $category['budget'];
+                $expenses->budget_id = $budget->id;
+                $expenses->save();
+            }
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data Insert Successful',
+                'code' => 200,
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $th->getMessage(),
+                'code' => 500,
+            ]);
+        }
+    }
+    public function updateBudget(Request $request, $month, $year)
+    {
+        $budget = Budget::where('month', $month)->where('year', $year)->first();
+
+        $budget->amount = $request->updatedAmount;
+
+        try {
+            $budget->save();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Budget Updated Successful',
+                'code' => 200,
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $th->getMessage(),
+                'code' => 500,
+            ]);
+        }
+    }
+}
