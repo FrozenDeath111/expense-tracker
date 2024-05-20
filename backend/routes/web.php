@@ -27,3 +27,6 @@ Route::get('/get-category/{month}/{year}', [ExpenseController::class, 'getCatego
 Route::post('/login', [UserController::class, 'login'])->middleware(EnsureUser::class);
 Route::post('/setup-budget', [ExpenseController::class, 'setupBudget']);
 Route::post('/update-budget/{month}/{year}', [ExpenseController::class, 'updateBudget']);
+Route::post('/update-expense', [ExpenseController::class, 'updateExpense']);
+Route::post('/add-category', [ExpenseController::class, 'addCategory']);
+Route::post('/add-expense-data', [ExpenseController::class, 'addexpenseData']);
