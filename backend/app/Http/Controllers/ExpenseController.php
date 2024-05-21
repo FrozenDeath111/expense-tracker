@@ -11,13 +11,18 @@ class ExpenseController extends Controller
 {
     public function getExpenseData()
     {
-        $expenses = Expense::all();
         $budgets = Budget::all();
+        $data = array();
+        foreach ($budgets as $budget) {
+            $budgetData = array();
+            $budgetData['budget'] = $budget;
+            $budgetData['expenses'] = $budget->expenses;
+            $data[] = $budgetData;
+        }
         $histories = History::all();
 
         return response()->json([
-            "expenses" => $expenses,
-            "budgets" => $budgets,
+            'data' => $data,
             "histories" => $histories,
         ]);
     }
